@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: jeonbuk-ai
+    container_name: customui
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - CORS_ALLOW_ORIGIN=https://ai.jb.go.kr;http://ai.jb.go.kr
