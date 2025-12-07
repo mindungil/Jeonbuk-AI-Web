@@ -98,8 +98,8 @@ cd Jeonbuk-AI
 ```bash
 # .env 파일 생성 및 편집
 cat > .env << EOF
-DATABASE_URL=postgresql://admin:password@host.docker.internal:5432/customui
-CORS_ALLOW_ORIGIN=https://ai.jb.go.kr;http://ai.jb.go.kr
+DATABASE_URL=postgresql://username:password@host.docker.internal:5432/dbname
+CORS_ALLOW_ORIGIN=https://your-domain.com;http://your-domain.com
 EOF
 ```
 
@@ -216,7 +216,7 @@ Jeonbuk-AI/
 DATABASE_URL=postgresql://user:pass@host:5432/dbname
 
 # CORS 설정
-CORS_ALLOW_ORIGIN=https://ai.jb.go.kr;http://ai.jb.go.kr
+CORS_ALLOW_ORIGIN=https://your-domain.com;http://your-domain.com
 
 # OpenAI API
 OPENAI_API_KEY=sk-...
