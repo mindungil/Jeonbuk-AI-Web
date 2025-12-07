@@ -1034,9 +1034,14 @@
 								document.getElementById('chat-input')?.focus();
 							}}
 							onConfirm={async (data) => {
-								const { text, filename } = data;
+								const { text, filename, file, blob } = data;
 
 								recording = false;
+								
+								// 실시간 녹음일 경우도 STT 처리
+								if (file && blob) {
+									await uploadFileHandler(file);
+								}
 
 								await tick();
 								await insertTextAtCursor(`${text}`);
