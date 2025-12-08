@@ -68,8 +68,6 @@ try:
 except Exception:
     pass
 
-OCR_SERVER_URL = os.environ.get("OCR_SERVER_URL")
-
 ####################################
 # LOGGING
 ####################################
@@ -203,7 +201,8 @@ for version in soup.find_all("h2"):
     changelog_json[version_number] = version_data
 
 CHANGELOG = changelog_json
-
+#### deepseek-ocr
+OCR_SERVER_URL = os.environ.get("OCR_SERVER_URL")
 ####################################
 # SAFE_MODE
 ####################################

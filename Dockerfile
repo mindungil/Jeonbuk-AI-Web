@@ -122,6 +122,7 @@ RUN apt-get update && \
     git build-essential pandoc gcc netcat-openbsd curl jq \
     python3-dev \
     ffmpeg libsm6 libxext6 \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
