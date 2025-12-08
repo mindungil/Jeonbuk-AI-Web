@@ -68,6 +68,8 @@ try:
 except Exception:
     pass
 
+OCR_SERVER_URL = os.environ.get("OCR_SERVER_URL")
+
 ####################################
 # LOGGING
 ####################################

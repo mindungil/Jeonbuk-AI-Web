@@ -30,7 +30,8 @@ from open_webui.retrieval.loaders.datalab_marker import DatalabMarkerLoader
 from open_webui.retrieval.loaders.mineru import MinerULoader
 
 
-from open_webui.env import SRC_LOG_LEVELS, GLOBAL_LOG_LEVEL
+from open_webui.env import SRC_LOG_LEVELS, GLOBAL_LOG_LEVEL, OCR_SERVER_URL
+from open_webui.retrieval.loaders.deepseek_ocr_loader import DeepSeekOCRLoader
 
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
 log = logging.getLogger(__name__)
@@ -354,8 +355,13 @@ class Loader:
             )
         else:
             if file_ext == "pdf":
-                loader = PyPDFLoader(
-                    file_path, extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES")
+                #loader = PyPDFLoader(
+                #    file_path, extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES")
+                #)
+                loader = DeepSeekOCRLoader(
+                    file_path,
+                    extract_images=True,
+                    ocr_server_url=OCR_SERVER_URL
                 )
             elif file_ext == "csv":
                 loader = CSVLoader(file_path, autodetect_encoding=True)
