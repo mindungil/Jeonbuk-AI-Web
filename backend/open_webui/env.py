@@ -203,6 +203,7 @@ for version in soup.find_all("h2"):
 CHANGELOG = changelog_json
 #### deepseek-ocr
 OCR_SERVER_URL = os.environ.get("OCR_SERVER_URL")
+NEWS_API_URL = os.environ.get("NEWS_API_URL", "http://220.124.155.35:5002/news")
 ####################################
 # SAFE_MODE
 ####################################

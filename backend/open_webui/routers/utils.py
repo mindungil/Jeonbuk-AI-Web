@@ -1,4 +1,5 @@
 import black
+import aiohttp
 import logging
 import markdown
 
@@ -86,6 +87,34 @@ async def get_html_from_markdown(
 class ChatForm(BaseModel):
     title: str
     messages: list[dict]
+
+
+class NewsRequest(BaseModel):
+    employee_name: str
+
+
+@router.post("/news")
+async def proxy_news(request: Request, form_data: NewsRequest, user=Depends(get_verified_user)):
+    target_url = request.app.state.config.NEWS_API_URL
+
+    if not target_url:
+        raise HTTPException(status_code=400, detail="News API URL not configured")
+
+    ssl_config = getattr(request.app.state, "AIOHTTP_CLIENT_SESSION_SSL", False)
+
+    try:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
+            async with session.post(
+                target_url,
+                json={"employee_name": form_data.employee_name},
+                ssl=ssl_config,
+            ) as resp:
+                resp.raise_for_status()
+                return await resp.json()
+    except Exception as e:
+        log.exception(f"Failed to proxy news request: {e}")
+        raise HTTPException(status_code=502, detail="Failed to fetch news")
 
 
 @router.post("/pdf")

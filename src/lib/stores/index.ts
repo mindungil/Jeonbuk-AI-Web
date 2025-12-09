@@ -255,6 +255,7 @@ type Config = {
 	status: boolean;
 	name: string;
 	version: string;
+	news_api_url?: string;
 	default_locale: string;
 	default_models: string;
 	default_prompt_suggestions: PromptSuggestion[];
@@ -298,4 +299,5 @@ export type SessionUser = {
 	name: string;
 	role: string;
 	profile_image_url: string;
+	last_active_at?: number;
 };

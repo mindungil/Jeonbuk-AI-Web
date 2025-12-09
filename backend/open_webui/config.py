@@ -30,6 +30,7 @@ from open_webui.env import (
     WEBUI_AUTH,
     WEBUI_FAVICON_URL,
     WEBUI_NAME,
+    NEWS_API_URL,
     log,
 )
 from open_webui.internal.db import Base, get_db
@@ -1235,6 +1236,12 @@ RESPONSE_WATERMARK = PersistentConfig(
     "RESPONSE_WATERMARK",
     "ui.watermark",
     os.environ.get("RESPONSE_WATERMARK", ""),
+)
+
+NEWS_API_URL_CONFIG = PersistentConfig(
+    "NEWS_API_URL",
+    "ui.news_api_url",
+    NEWS_API_URL,
 )
 
 

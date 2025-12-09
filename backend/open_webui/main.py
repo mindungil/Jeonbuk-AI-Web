@@ -371,6 +371,7 @@ from open_webui.config import (
     DEFAULT_PINNED_MODELS,
     DEFAULT_ARENA_MODEL,
     MODEL_ORDER_LIST,
+    NEWS_API_URL_CONFIG,
     EVALUATION_ARENA_MODELS,
     # WebUI (OAuth)
     ENABLE_OAUTH_ROLE_MANAGEMENT,
@@ -763,6 +764,7 @@ app.state.config.PENDING_USER_OVERLAY_CONTENT = PENDING_USER_OVERLAY_CONTENT
 app.state.config.PENDING_USER_OVERLAY_TITLE = PENDING_USER_OVERLAY_TITLE
 
 app.state.config.RESPONSE_WATERMARK = RESPONSE_WATERMARK
+app.state.config.NEWS_API_URL = NEWS_API_URL_CONFIG
 
 app.state.config.USER_PERMISSIONS = USER_PERMISSIONS
 app.state.config.WEBHOOK_URL = WEBHOOK_URL
@@ -813,6 +815,7 @@ app.state.AUTH_TRUSTED_EMAIL_HEADER = WEBUI_AUTH_TRUSTED_EMAIL_HEADER
 app.state.AUTH_TRUSTED_NAME_HEADER = WEBUI_AUTH_TRUSTED_NAME_HEADER
 app.state.WEBUI_AUTH_SIGNOUT_REDIRECT_URL = WEBUI_AUTH_SIGNOUT_REDIRECT_URL
 app.state.EXTERNAL_PWA_MANIFEST_URL = EXTERNAL_PWA_MANIFEST_URL
+app.state.AIOHTTP_CLIENT_SESSION_SSL = AIOHTTP_CLIENT_SESSION_SSL
 
 app.state.USER_COUNT = None
 
@@ -1826,6 +1829,7 @@ async def get_app_config(request: Request):
         "status": True,
         "name": app.state.WEBUI_NAME,
         "version": VERSION,
+        "news_api_url": app.state.config.NEWS_API_URL,
         "default_locale": str(DEFAULT_LOCALE),
         "oauth": {
             "providers": {

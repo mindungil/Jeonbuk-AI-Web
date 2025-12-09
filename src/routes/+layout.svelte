@@ -55,7 +55,9 @@
 	import NotificationToast from '$lib/components/NotificationToast.svelte';
 	import AppSidebar from '$lib/components/app/AppSidebar.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
+	import DailyNewsModal from '$lib/components/news/DailyNewsModal.svelte';
 	import { getUserSettings } from '$lib/apis/users';
+	import { getDailyNewsItems, shouldShowDailyNews } from '$lib/services/dailyNews';
 	import dayjs from 'dayjs';
 	import { getChannels } from '$lib/apis/channels';
 
@@ -92,7 +94,50 @@
 
 	let heartbeatInterval = null;
 
+	let showNewsModal = false;
+	let newsModalItems = [];
+	let newsModalError = null;
+	let newsModalAttempted = false;
+	let pendingNewsUser = null;
+
 	const BREAKPOINT = 768;
+
+	const loadDailyNewsForUser = async (sessionUser) => {
+		if (newsModalAttempted || !sessionUser) {
+			return;
+		}
+
+		const lastActiveAt = sessionUser?.last_active_at ?? null;
+		if (!shouldShowDailyNews(lastActiveAt)) {
+			return;
+		}
+
+		newsModalAttempted = true;
+
+		const employeeName = sessionUser?.name || sessionUser?.email || '직원';
+
+		try {
+			newsModalItems = await getDailyNewsItems(employeeName);
+			newsModalError = null;
+		} catch (error) {
+			console.error('Failed to load daily news', error);
+			newsModalItems = [];
+			newsModalError = '뉴스 정보를 가져올 수 없습니다.';
+		}
+
+		showNewsModal = true;
+	};
+
+	const triggerDailyNewsModal = async () => {
+		if (!pendingNewsUser || !loaded) {
+			return;
+		}
+
+		const userForNews = pendingNewsUser;
+		pendingNewsUser = null;
+
+		await loadDailyNewsForUser(userForNews);
+	};
 
 	const setupSocket = async (enableWebsocket) => {
 		const _socket = io(`${WEBUI_BASE_URL}` || undefined, {
@@ -751,6 +796,8 @@
 					if (sessionUser) {
 						await user.set(sessionUser);
 						await config.set(await getBackendConfig());
+						pendingNewsUser = sessionUser;
+						await triggerDailyNewsModal();
 					} else {
 						// Redirect Invalid Session User to /auth Page
 						localStorage.removeItem('token');
@@ -801,6 +848,8 @@
 			loaded = true;
 		}
 
+		await triggerDailyNewsModal();
+
 		return () => {
 			window.removeEventListener('resize', onResize);
 		};
@@ -841,6 +890,8 @@
 		<slot />
 	{/if}
 {/if}
+
+<DailyNewsModal bind:show={showNewsModal} items={newsModalItems} error={newsModalError} />
 
 <Toaster
 	theme={$theme.includes('dark')
