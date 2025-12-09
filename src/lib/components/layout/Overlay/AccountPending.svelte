@@ -47,9 +47,7 @@
 							)
 						)}
 					{:else}
-						{$i18n.t('Your account status is currently pending activation.')}{'\n'}{$i18n.t(
-							'To access the WebUI, please reach out to the administrator. Admins can manage user statuses from the Admin Panel.'
-						)}
+						계정 승인 대기 중입니다.{'\n'}인증이 필요하면 윤성호(yoonkhsc@korea.kr)에게 연락해 주세요.
 					{/if}
 				</div>
 

@@ -108,6 +108,7 @@
 		}
 
 		const lastActiveAt = sessionUser?.last_active_at ?? null;
+		// 하루 1회만 노출
 		if (!shouldShowDailyNews(lastActiveAt)) {
 			return;
 		}
