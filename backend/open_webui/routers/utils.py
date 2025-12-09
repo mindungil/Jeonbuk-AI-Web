@@ -2,6 +2,8 @@ import black
 import aiohttp
 import logging
 import markdown
+import json
+import datetime
 
 from open_webui.models.chats import ChatTitleMessagesForm
 from open_webui.config import DATA_DIR, ENABLE_ADMIN_EXPORT
@@ -100,6 +102,20 @@ async def proxy_news(request: Request, form_data: NewsRequest, user=Depends(get_
     if not target_url:
         raise HTTPException(status_code=400, detail="News API URL not configured")
 
+    redis = getattr(request.app.state, "redis", None)
+    cache_key = None
+    if redis:
+        today = datetime.datetime.now().date().isoformat()
+        user_identifier = user.email or user.id
+        cache_key = f"news:{today}:{user_identifier}"
+
+        cached = await redis.get(cache_key)
+        if cached:
+            try:
+                return json.loads(cached)
+            except Exception:
+                pass
+
     ssl_config = getattr(request.app.state, "AIOHTTP_CLIENT_SESSION_SSL", False)
 
     try:
@@ -111,7 +127,20 @@ async def proxy_news(request: Request, form_data: NewsRequest, user=Depends(get_
                 ssl=ssl_config,
             ) as resp:
                 resp.raise_for_status()
-                return await resp.json()
+                payload = await resp.json()
+
+                if redis and cache_key:
+                    try:
+                        now = datetime.datetime.now()
+                        tomorrow = (now + datetime.timedelta(days=1)).replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                        )
+                        ttl = int((tomorrow - now).total_seconds()) or 1
+                        await redis.set(cache_key, json.dumps(payload), ex=ttl)
+                    except Exception as e:
+                        log.debug(f"Failed to cache news payload: {e}")
+
+                return payload
     except Exception as e:
         log.exception(f"Failed to proxy news request: {e}")
         raise HTTPException(status_code=502, detail="Failed to fetch news")

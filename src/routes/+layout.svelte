@@ -57,7 +57,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import DailyNewsModal from '$lib/components/news/DailyNewsModal.svelte';
 	import { getUserSettings } from '$lib/apis/users';
-	import { getDailyNewsItems, shouldShowDailyNews } from '$lib/services/dailyNews';
+	import { getDailyNewsItems } from '$lib/services/dailyNews';
 	import dayjs from 'dayjs';
 	import { getChannels } from '$lib/apis/channels';
 
@@ -102,14 +102,13 @@
 
 	const BREAKPOINT = 768;
 
+	$: if ($user && !newsModalAttempted) {
+		pendingNewsUser = $user;
+		triggerDailyNewsModal();
+	}
+
 	const loadDailyNewsForUser = async (sessionUser) => {
 		if (newsModalAttempted || !sessionUser) {
-			return;
-		}
-
-		const lastActiveAt = sessionUser?.last_active_at ?? null;
-		// 하루 1회만 노출
-		if (!shouldShowDailyNews(lastActiveAt)) {
 			return;
 		}
 
@@ -130,7 +129,7 @@
 	};
 
 	const triggerDailyNewsModal = async () => {
-		if (!pendingNewsUser || !loaded) {
+		if (!pendingNewsUser) {
 			return;
 		}
 
