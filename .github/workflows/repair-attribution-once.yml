@@ -1,0 +1,46 @@
+name: One-time attribution repair
+on:
+  push:
+    branches:
+      - history-attribution-runner-20260814
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Rewrite attribution preserving history metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          OLD_EMAIL='rlfalswns12@gmail.com'
+          NEW_EMAIL='113085377+mindungil@users.noreply.github.com'
+          BEFORE_TREE="$(git rev-parse HEAD^{tree})"
+          BEFORE_COUNT="$(git rev-list --count HEAD)"
+          git log --reverse --format='%an%x1f%aI%x1f%cn%x1f%cI%x1f%B%x1e' HEAD > /tmp/meta.before
+          git branch rewrite HEAD
+          FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --env-filter '
+            if [ "$GIT_AUTHOR_EMAIL" = "rlfalswns12@gmail.com" ]; then
+              export GIT_AUTHOR_EMAIL="113085377+mindungil@users.noreply.github.com"
+            fi
+            if [ "$GIT_COMMITTER_EMAIL" = "rlfalswns12@gmail.com" ]; then
+              export GIT_COMMITTER_EMAIL="113085377+mindungil@users.noreply.github.com"
+            fi
+          ' -- rewrite
+          AFTER_TREE="$(git rev-parse rewrite^{tree})"
+          AFTER_COUNT="$(git rev-list --count rewrite)"
+          git log --reverse --format='%an%x1f%aI%x1f%cn%x1f%cI%x1f%B%x1e' rewrite > /tmp/meta.after
+          test "$BEFORE_TREE" = "$AFTER_TREE"
+          test "$BEFORE_COUNT" = "$AFTER_COUNT"
+          cmp /tmp/meta.before /tmp/meta.after
+          if git log --format='%ae%n%ce' rewrite | grep -Fqx "$OLD_EMAIL"; then
+            echo 'old email remains' >&2
+            exit 1
+          fi
+          git log --format='%ae%n%ce' rewrite | grep -Fqx "$NEW_EMAIL"
+          git push --force origin rewrite:main
+          git push origin --delete history-attribution-runner-20260814 || true
